@@ -111,7 +111,14 @@ class sac(object):
 		self.id     = self.knetwk+'_'+self.kstnm+'_'+self.khole+'_'+self.kcmpnm
 		self.depvar =  np.array([],dtype='d')
 
-	def rsac(self,FILE,npts=-1,datflag=1):
+	def rsac(self,FILE,npts=None,datflag=True):
+                '''
+                Read sac file
+                Args:
+                    * FILE: input sac file name
+                    * npts: number of data points to be read
+                    * datflag: True: read data, False: read header only
+                '''
                 # Read header
                 fid     = open(FILE,'rb')
                 self.delta     = np.fromfile(fid,'float32',   1)[0]
@@ -204,19 +211,16 @@ class sac(object):
                 self.id    = self.knetwk+'_'+self.kstnm+'_'+self.khole+'_'\
                              +self.kcmpnm                        
                 # Read data
-                if not datflag:
-                        fid.close()
-                        # All done
-                        return
                 fid.seek(632,0);
-                npts = int(npts)
-                if npts < 0 or npts > self.npts:
+                if not datflag: # All done
+                        fid.close()
+                        return
+                if npts == None or npts < 0 or npts > self.npts:
                         npts = self.npts
                 else:
-                        self.npts = npts
+                        self.npts = int(npts)
                 if self.npts > 0:
-                        self.depvar = np.array(np.fromfile(fid,'float32',self.npts),
-                                               dtype='d')
+                        self.depvar = np.array(np.fromfile(fid,'float32',self.npts),dtype='d')
                 fid.close()
 
                 # All done
@@ -224,6 +228,11 @@ class sac(object):
 			
 
         def wsac(self,FILE):
+                '''
+                Write sac file
+                Args:
+                    * FILE: output sac file name
+                '''
                 dumi = np.array(-12345    ,dtype='int32')
                 dumf = np.array(-12345.0  ,dtype='float32')
                 dumc = np.array('-12345  ',dtype='c')
