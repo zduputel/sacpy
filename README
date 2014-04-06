@@ -1,0 +1,5 @@
+## Some instructions
+
+# Z. Duputel - March 2014
+- The sacpy module must be located in a directory that is incuded in the PYTHONPATH environment.
+
