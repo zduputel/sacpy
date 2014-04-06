@@ -329,7 +329,14 @@ class sac(object):
                 
                 # All done 
                 return
+
+
+        def copy(self):
+                '''
+                Returns a copy of the sac object
+                '''
                 
+                return deepcopy(self)                
 
 
 def zero_pad_start(t,sac,t0):
