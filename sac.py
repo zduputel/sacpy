@@ -326,6 +326,7 @@ class sac(object):
 
                 # Write data
                 np.array(self.depvar,dtype='float32').tofile(fid)
+                fid.close()
                 
                 # All done 
                 return
