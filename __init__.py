@@ -1,7 +1,7 @@
 ''' 
-Init file for StaticInv 
+Init file for sacpy
 
-Written by R. Jolivet, April 2013.
+Written by Z. Duputel, December 2013
 '''
 
 # Base class

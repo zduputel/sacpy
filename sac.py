@@ -1,4 +1,8 @@
-#!/usr/bin/env python 
+'''
+Class that deals with sac files
+
+Written by Z. Duputel, December 2013
+'''
 
 # Function - Class definitions
 
