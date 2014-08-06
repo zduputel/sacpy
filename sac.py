@@ -7,9 +7,10 @@ Written by Z. Duputel, December 2013
 # Function - Class definitions
 
 import os,sys
-from copy import deepcopy
-import numpy as np
+import numpy  as np
 import shutil as sh
+from copy     import deepcopy
+from datetime import datetime, timedelta
 
 NVHDR = 6
 ITIME = 1
@@ -335,6 +336,61 @@ class sac(object):
                 # All done 
                 return
 
+        def getnzdatetime(self):
+                '''
+                Get the reference datetime
+                '''
+                # Reference datetime
+                nzjday = timedelta(int(self.nzjday)-1)
+                nzusec = int(self.nzmsec*1e3)
+                nztime = datetime(self.nzyear,1,1,self.nzhour,self.nzmin,self.nzsec,nzusec)+nzjday
+
+                # All done
+                return nztime
+
+
+        def setotime(self,otime):
+                '''
+                Set o 
+                Arg:
+                   * otime: datetime instance
+                '''
+                
+                # Get nzdatetime
+                nztime = self.getnzdatetime()
+                
+                # Time difference is o
+                self.o  = np.float32((otime-nztime).total_seconds())
+
+                # All done
+                return
+
+        
+        def setarrivaltimes(self,phase_dict):
+                '''
+                Set t and kt 
+                Arg:
+                   phase_dict: phase pick dictionary {name: arrival_datetime)                
+                '''
+
+                # Get nzdatetime
+                nztime = self.getnzdatetime()
+
+                # Loop over phase names and arrival times 
+                i = 0
+                for pname, ptime in phase_dict.items():
+
+                        # Phase name
+                        assert len(pname)<8, 'phase name %s is too long'%(pname)
+                        self.kt[i] = pname
+
+                        # Arrival time                        
+                        self.t[i]  = np.float32((ptime-nztime).total_seconds())
+                        i += 1
+                        
+                # All done
+                return                
+
 
         def copy(self):
                 '''
@@ -342,6 +398,7 @@ class sac(object):
                 '''
                 
                 return deepcopy(self)                
+
 
 
 def zero_pad_start(t,sac,t0):
