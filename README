@@ -1,9 +1,13 @@
-## Some instructions
 
 # Z. Duputel - March 2014
 
-sacpy is a simple module that deals with SAC (Seismic Analysis Code) files.
+## Description
+Sacpy is a simple python module that deals with SAC files.
 
+## Dependencies
+- Numpy
+
+## Some instructions
 - You should add the sacpy directory to the PYTHONPATH environment variable.
-- The module can handle binary data in little-either endian or big-endian formats.
+
 
