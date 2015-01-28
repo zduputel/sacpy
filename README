@@ -1,5 +1,9 @@
 ## Some instructions
 
 # Z. Duputel - March 2014
-- The sacpy module must be located in a directory that is incuded in the PYTHONPATH environment.
+
+sacpy is a simple module that deals with SAC (Seismic Analysis Code) files.
+
+- You should add the sacpy directory to the PYTHONPATH environment variable.
+- The module can handle binary data in little-either endian or big-endian formats.
 
