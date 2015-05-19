@@ -592,15 +592,36 @@ class sac(object):
         # All done
         return res
 
+    
+    def integrate(self):
+        '''
+        Performs integration using the traperoidal rule
+        '''
+
+        # Integration
+        w  = self.depvar.copy()
+        wi = self.depvar.cumsum()
+        wi = (2*wi[1:]-(w[0]+w[1:]))*self.delta/2.
+        self.depvar = wi.copy()
+
+        # Re-assign b, e, npts, min/max amplitudes
+        self.b += self.delta/2.
+        self.npts -= 1
+        self.e = self.b + float(self.npts - 1) * self.delta
+        self.depmin  = self.depvar.min()
+        self.depmax  = self.depvar.max()
+        
+        # All done
+        
 
     def copy(self):
         '''
         Returns a copy of the sac object
         '''
-                
+        # All done
         return deepcopy(self)                
 
-
+    
 
 def zero_pad_start(t,sac,t0):
     tmin = t[0]
