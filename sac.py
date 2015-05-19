@@ -42,7 +42,16 @@ class SacError(Exception):
 
 
 class sac(object):
-    def __init__(self):
+    '''
+    A simple sac class
+    '''
+    
+    def __init__(self,filename=None):
+        '''
+        Constructor
+        Args:
+            * filename: read sac filename (optional)
+        '''
         self.delta  =  -12345.
         self.depmin =  -12345.
         self.depmax =  -12345.
@@ -126,6 +135,14 @@ class sac(object):
         self.kinst  = '-12345'
         self.id     = self.knetwk+'_'+self.kstnm+'_'+self.khole+'_'+self.kcmpnm
         self.depvar =  np.array([],dtype='d')
+
+        # Read sac file if filename is specified
+        if filename is not None:
+            assert os.path.exists(filename), filename+' not found'
+            self.rsac(filename)
+
+        # All done
+        
 
     def rsac(self,FILE,npts=None,datflag=True):
         '''
@@ -243,12 +260,16 @@ class sac(object):
             self.khole = '--'
         self.id = self.knetwk+'_'+self.kstnm+'_'+self.khole+'_'\
                      +self.kcmpnm                        
-        # Read data
-        fid.seek(632,0);
-        if not datflag: # All done
+
+        # Don't read waveform
+        if not datflag: 
             fid.close()
+            # All done
             return
-        if npts == None or npts < 0 or npts > self.npts:
+
+        # Read waveform
+        fid.seek(632,0);
+        if npts is None or npts < 0 or npts > self.npts:
             npts = self.npts
         else:
             self.npts = int(npts)            
@@ -256,8 +277,12 @@ class sac(object):
             self.depvar = np.array(np.fromfile(fid,ftype,self.npts),dtype='d')
         fid.close()
 
+        # Re-assign min/max amplitudes and end time
+        self.depmin  = self.depvar.min()
+        self.depmax  = self.depvar.max()
+        self.e       = self.b + float(self.npts - 1) * self.delta
+        
         # All done
-        return
             
 
     def wsac(self,FILE):
@@ -266,9 +291,18 @@ class sac(object):
         Args:
            * FILE: output sac file name
         '''
+
+        # Dummy variables
         dumi = np.array(-12345    ,dtype='int32')
         dumf = np.array(-12345.0  ,dtype='float32')
         dumc = np.array('-12345  ',dtype='c')
+        
+        # Re-assign min/max amplitudes and end time
+        self.depmin  = self.depvar.min()
+        self.depmax  = self.depvar.max()
+        self.e = self.b + float(self.npts - 1) * self.delta
+
+        # Write file
         fid = open(FILE,'wb')
         np.array(self.delta,dtype='float32').tofile(fid)
         np.array(self.depmin,dtype='float32').tofile(fid)
@@ -276,7 +310,6 @@ class sac(object):
         np.array(self.scale,dtype='float32').tofile(fid)
         np.array(self.odelta,dtype='float32').tofile(fid)
         np.array(self.b,dtype='float32').tofile(fid)
-        self.e = self.b + float(self.npts - 1) * self.delta
         np.array(self.e,dtype='float32').tofile(fid)
         np.array(self.o,dtype='float32').tofile(fid)
         np.array(self.a,dtype='float32').tofile(fid)
@@ -362,8 +395,8 @@ class sac(object):
         np.array(self.depvar,dtype='float32').tofile(fid)
         fid.close()
                 
-        # All done 
-        return
+        # All done
+        
 
     def getnzdatetime(self):
         '''
@@ -391,7 +424,6 @@ class sac(object):
         self.o  = np.float32((otime-nztime).total_seconds())
 
         # All done
-        return
 
         
     def setarrivaltimes(self,phase_dict):
@@ -417,7 +449,148 @@ class sac(object):
             i += 1
                         
         # All done
-        return                
+
+
+    def __add__(self, other):
+        '''
+        Addition operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Adding two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar += other.depvar
+            flag = True
+
+        # Adding array or list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar += other
+            flag = True
+
+        # Adding real number
+        if isinstance(other,(int,float)):
+            res.depvar += other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
+
+    def __sub__(self, other):
+        '''
+        Substraction operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Adding two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar -= other.depvar
+            flag = True
+
+        # Adding array or list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar -= other
+            flag = True
+
+        # Adding real number
+        if isinstance(other,(int,float)):
+            res.depvar -= other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res    
+
+    def __mul__(self, other):
+        '''
+        Multiplication operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Adding two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar *= other.depvar
+            flag = True
+
+        # Adding array or list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar *= other
+            flag = True
+
+        # Adding real number
+        if isinstance(other,(int,float)):
+            res.depvar *= other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
 
 
     def copy(self):
