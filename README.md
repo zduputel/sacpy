@@ -4,7 +4,7 @@
 Sacpy is a simple python module that deals with binary SAC files.
 
 ## Dependencies
-- python2.7 (or later)
+- python2 or python3
 - numpy
 
 ## Some instructions
