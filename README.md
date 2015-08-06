@@ -19,7 +19,7 @@ from sacpy import sac
 ```
 (sac is the class used to manipulate SAC files)
 
-####Reading SAC file
+####Reading SAC 
 You can read binary SAC files using
 ```
 sacobj = sacpy.sac("SAC_FILENAME")
@@ -30,7 +30,7 @@ sacobj = sacpy.sac()
 sacobj.rsac("SAC_FILENAME")
 ```
 
-####Writing SAC file
+####Writing SAC 
 You can write binary SAC files using
 ```
 sacobj.wsac("SAC_FILENAME")
