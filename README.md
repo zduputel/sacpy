@@ -20,7 +20,7 @@ from sacpy import sac
 ```
 (sac is the class used to manipulate SAC files)
 
-####Reading/Writing SAC 
+###Reading/Writing SAC 
 You can read binary SAC files using
 ```
 sacobj = sacpy.sac()
@@ -37,13 +37,13 @@ You can write binary SAC files using
 sacobj.wsac("SAC_FILENAME")
 ```
 
-####Copy sac object
+###Copy sac object
 To (deep) copy a sac object sacobj in a new sacobjcopy, you can use:
 ```
 sacobjcopy = sacobj.copy()
 ```
 
-####Addition, substraction, multiplication
+###Addition, substraction, multiplication
 If you have 2 sac objects sacobj1 and sacobj2 (including the same number of samples), you can add, substract, multiply waveforms of the 2 files using:
 ```
 sacobj3=sacobj1+sacobj2
@@ -52,13 +52,13 @@ sacobj3=sacobj1*sacobj2
 ```
 (data in sacobj3 will be the sum, substraction and multiplication of sacobj1 and sacobj2). 
 
-####Time integration
+###Time integration
 To perform time-integration, you can use:
 ```
 sacobj.integrate()
 ```
 
-####Time
+###Time
 To get the reference datetime, you can use:
 ```
 sacobj.getnzdatetime()
