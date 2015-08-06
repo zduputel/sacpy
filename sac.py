@@ -134,7 +134,7 @@ class sac(object):
         self.kdatrd = '-12345'
         self.kinst  = '-12345'
         self.id     = self.knetwk+'_'+self.kstnm+'_'+self.khole+'_'+self.kcmpnm
-        self.depvar =  np.array([],dtype='d')
+        self.depvar =  np.array([])
 
         # Read sac file if filename is specified
         if filename is not None:
@@ -274,7 +274,7 @@ class sac(object):
         else:
             self.npts = int(npts)            
         if self.npts > 0:
-            self.depvar = np.array(np.fromfile(fid,ftype,self.npts),dtype='d')
+            self.depvar = np.fromfile(fid,ftype,self.npts)
         fid.close()
 
         # Re-assign min/max amplitudes and end time
