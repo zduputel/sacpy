@@ -292,6 +292,10 @@ class sac(object):
            * FILE: output sac file name
         '''
 
+        # convert to list
+        if type(self.depvar)==list:
+            self.depvar = np.array(self.depvar)
+        
         # Dummy variables
         dumi = np.array(-12345    ,dtype='int32')
         dumf = np.array(-12345.0  ,dtype='float32')
