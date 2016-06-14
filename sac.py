@@ -8,6 +8,7 @@ Written by Z. Duputel, December 2013
 import os,sys
 import numpy  as np
 import shutil as sh
+import scipy.signal as signal
 from copy     import deepcopy
 from datetime import datetime, timedelta
 
@@ -616,7 +617,28 @@ class sac(object):
         self.depmax  = self.depvar.max()
         
         # All done
+
+    def interpolate(self, delta):
+        '''
+        Interpolates data to a new sampling rate.
+        '''
+
+        # Check that headers are correct
+        assert self.npts > 0, 'npts must be assigned'
+        assert self.delta > 0., 'delta must be assigned'
+        assert delta > 0., 'delta must be greater than 0.'
         
+        # time vectors
+        time_org = np.arange(self.npts)*self.delta
+        npts_new = int(np.floor((self.npts-1)*self.delta/delta))
+        time_new = np.arange(npts_new)*delta
+
+        # Interpolate
+        self.depvar = np.interp(time_new,time_org,self.depvar)
+        self.npts   = npts_new
+        self.delta  = delta
+
+        # All done
 
     def copy(self):
         '''
