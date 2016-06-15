@@ -640,6 +640,34 @@ class sac(object):
 
         # All done
 
+    def decimate(self, dec_fac):
+        '''
+        Decimates data
+        Args:
+            * dec_fac: decimation factor
+        '''
+
+        import decimate as decim
+
+        # Check decimation factor
+        assert dec_fac in decim.FACS, 'Incorrect decimation factor'
+
+        # Init filters
+        fir = {2: decim.FIRfilter(decim.FIRDEC2),
+               3: decim.FIRfilter(decim.FIRDEC3),
+               4: decim.FIRfilter(decim.FIRDEC4),
+               5: decim.FIRfilter(decim.FIRDEC5)}
+
+        #
+        fir_cascade = decim.FACS[dec_fac]
+        for c in fir_cascade:
+            assert c>=1 and c<=5, 'Incorrect decimation factor (%d)'%(c)
+            if c==1:
+                continue
+            self.depvar = decim.decimate(self.depvar,fir[c],c)
+            self.delta *= np.float32(c)
+        self.npts = len(self.depvar)
+        
     def copy(self):
         '''
         Returns a copy of the sac object
