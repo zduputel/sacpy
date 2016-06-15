@@ -24,7 +24,7 @@ from sacpy import sac
 You can read binary SAC files using
 ```
 sacobj = sacpy.sac()
-sacobj.rsac("SAC_FILENAME")
+sacobj.read("SAC_FILENAME")
 ```
 or
 ```
@@ -34,7 +34,7 @@ In the first case, we first instantiate a sac object and then read the SAC file.
 
 You can write binary SAC files using
 ```
-sacobj.wsac("SAC_FILENAME")
+sacobj.write("SAC_FILENAME")
 ```
 
 ###Copy sac object
