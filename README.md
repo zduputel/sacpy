@@ -21,10 +21,10 @@ from sacpy import sac
 ```
 (sac is the class used to manipulate SAC files)
 
-In the sac class, attributes have the same name as sac header variables. For example, to access the number of data points, use:
+In the sac class, attributes have the same name as sac header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by:
+```
 sacobj.npts
-See [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)
-
+```
 
 ###Reading/Writing SAC 
 You can read binary SAC files using
@@ -77,7 +77,7 @@ To decimate the data:
 sacobj.decimate(decimation_factor)
 ```
 Currently, only the following decimation factors are available:
-1, 2, 3, 5, 10, 20, 25, 30, 40, 50, 60, 75, 80, 90, 100
+1, 2, 3, 5, 10, 20, 25, 30, 40, 50, 60, 75, 80, 90, 100, 120
 Decimation includes a proper anti-aliasing FIR filter.
 
 ###Time
