@@ -8,7 +8,6 @@ Written by Z. Duputel, December 2013
 import os,sys
 import numpy  as np
 import shutil as sh
-import scipy.signal as signal
 from copy     import deepcopy
 from datetime import datetime, timedelta
 
@@ -140,12 +139,12 @@ class sac(object):
         # Read sac file if filename is specified
         if filename is not None:
             assert os.path.exists(filename), filename+' not found'
-            self.rsac(filename)
+            self.read(filename)
 
         # All done
         
 
-    def rsac(self,FILE,npts=None,datflag=True):
+    def read(self,FILE,npts=None,datflag=True):
         '''
         Read sac file
         Args:
@@ -284,9 +283,9 @@ class sac(object):
         self.e       = self.b + float(self.npts - 1) * self.delta
         
         # All done
-            
 
-    def wsac(self,FILE):
+        
+    def write(self,FILE):
         '''
         Write sac file
         Args:
@@ -401,8 +400,28 @@ class sac(object):
         fid.close()
                 
         # All done
-        
 
+        
+    def rsac(self,FILE,npts=None,datflag=True):
+        '''
+        Clone of self.read()
+        '''
+        sys.stderr.write('FutureWarning: sac.rsac will be replaced by sac.read in the future\n')
+        self.read(FILE,npts=None,datflag=True)
+
+        # All done
+
+        
+    def wsac(self,FILE):
+        '''
+        Clone of self.write
+        '''
+        sys.stderr.write('FutureWarning: sac.wsac will be replaced by sac.write in the future\n')
+        self.write(FILE)
+
+        # All done
+
+        
     def getnzdatetime(self):
         '''
         Get the reference datetime
@@ -618,6 +637,7 @@ class sac(object):
         
         # All done
 
+        
     def interpolate(self, delta):
         '''
         Interpolates data to a new sampling rate.
@@ -640,6 +660,7 @@ class sac(object):
 
         # All done
 
+        
     def decimate(self, dec_fac):
         '''
         Decimates data
@@ -667,6 +688,7 @@ class sac(object):
             self.depvar = decim.decimate(self.depvar,fir[c],c)
             self.delta *= np.float32(c)
         self.npts = len(self.depvar)
+
         
     def copy(self):
         '''
@@ -674,8 +696,6 @@ class sac(object):
         '''
         # All done
         return deepcopy(self)                
-
-    
 
 def zero_pad_start(t,sac,t0):
     tmin = t[0]
