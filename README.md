@@ -80,6 +80,13 @@ Currently, only the following decimation factors are available:
 1, 2, 3, 5, 10, 20, 25, 30, 40, 50, 60, 75, 80, 90, 100, 120
 Decimation includes a proper anti-aliasing FIR filter.
 
+###Filtering
+To filter the data:
+```
+sacobj.filter(freq, N, filter_type)
+```
+Data will be band-path filtered using a butterworth filter of order N. filter_type can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'.
+
 ###Time
 To get the reference datetime, you can use:
 ```
