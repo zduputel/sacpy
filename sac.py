@@ -704,12 +704,12 @@ class sac(object):
         self.npts = len(self.depvar)
 
 
-    def butter(self, N, Freq, btype='lowpass'):
+    def filter(self, freq, order=4, btype='lowpass'):
         '''
         Bandpass filter the data using a butterworth filter
         Args:
-            * N:  The order of the filter.
-            * Wn: A scalar or length-2 sequence giving the critical frequencies (in Hz)
+            * freq: A scalar or length-2 sequence giving the critical frequencies (in Hz)
+            * order:  Order of the filter.
             * btype: {'lowpass', 'highpass', 'bandpass', 'bandstop'}, optional
               (default is 'lowpass'
         '''
