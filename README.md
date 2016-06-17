@@ -7,6 +7,7 @@ Sacpy is a simple python module that deals with binary SAC files.
 ## Dependencies
 - python2 or python3
 - numpy
+- scipy
 
 ## Some instructions
 To use sacpy, the sacpy directory must be placed in a path pointed by the PYTHONPATH environment variable.
