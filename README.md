@@ -81,9 +81,9 @@ Decimation includes a proper anti-aliasing FIR filter.
 ###Filtering
 To filter the data:
 ```
-sacobj.filter(freq, N, filter_type)
+sacobj.filter(freq, order, btype)
 ```
-Data will be band-path filtered using a butterworth filter of order N. filter_type can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'.
+Data will be band-path filtered using a butterworth filter. `btype` can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'. Default values are `order=4` and `btype='lowpass'`.
 
 ###Time
 To get the reference datetime, you can use:
