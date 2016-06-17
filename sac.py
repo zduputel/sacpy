@@ -4,10 +4,10 @@ A simple class that deals with sac files
 Written by Z. Duputel, December 2013
 '''
 
-
 import os,sys
 import numpy  as np
 import shutil as sh
+import scipy.signal as signal
 from copy     import deepcopy
 from datetime import datetime, timedelta
 
@@ -636,6 +636,18 @@ class sac(object):
         self.depmax  = self.depvar.max()
         
         # All done
+        return
+
+
+    def isempty(self):
+        '''
+        Check if important attributes are there
+        '''    
+        if (self.npts < 0) or (self.delta < 0) or (not self.depvar.size):
+            return True
+
+        # All done
+        return False
 
         
     def interpolate(self, delta):
@@ -644,9 +656,7 @@ class sac(object):
         '''
 
         # Check that headers are correct
-        assert self.npts > 0, 'npts must be assigned'
-        assert self.delta > 0., 'delta must be assigned'
-        assert delta > 0., 'delta must be greater than 0.'
+        assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
         
         # time vectors
         time_org = np.arange(self.npts)*self.delta
@@ -659,8 +669,9 @@ class sac(object):
         self.delta  = delta
 
         # All done
-
+        return
         
+
     def decimate(self, dec_fac):
         '''
         Decimates data
@@ -669,6 +680,9 @@ class sac(object):
         '''
 
         import decimate as decim
+
+        # Check that headers are correct
+        assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
 
         # Check decimation factor
         assert dec_fac in decim.FACS, 'Incorrect decimation factor'
@@ -679,7 +693,7 @@ class sac(object):
                4: decim.FIRfilter(decim.FIRDEC4),
                5: decim.FIRfilter(decim.FIRDEC5)}
 
-        #
+        # Filter cascade
         fir_cascade = decim.FACS[dec_fac]
         for c in fir_cascade:
             assert c>=1 and c<=5, 'Incorrect decimation factor (%d)'%(c)
@@ -689,6 +703,31 @@ class sac(object):
             self.delta *= np.float32(c)
         self.npts = len(self.depvar)
 
+
+    def butter(self, N, Freq, btype='lowpass'):
+        '''
+        Bandpass filter the data using a butterworth filter
+        Args:
+            * N:  The order of the filter.
+            * Wn: A scalar or length-2 sequence giving the critical frequencies (in Hz)
+            * btype: {'lowpass', 'highpass', 'bandpass', 'bandstop'}, optional
+              (default is 'lowpass'
+        '''
+        
+        # Check that headers are correct
+        assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
+
+        # Filter design
+        if type(Freq) is list:
+            Freq = np.array(Freq)
+        Wn = Freq * 2. * self.delta # Normalizing frequencies
+        b, a = signal.butter(N, Wn, btype)
+        
+        # Filter waveform
+        self.depvar = signal.lfilter(b, a, self.depvar)
+
+        # All done
+        return
         
     def copy(self):
         '''
