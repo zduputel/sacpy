@@ -21,10 +21,7 @@ from sacpy import sac
 ```
 (sac is the class used to manipulate SAC files)
 
-In the sac class, attributes have the same name as sac header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by:
-```
-sacobj.npts
-```
+In the sac class, attributes have the same name as sac header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by `sacobj.npts`. The data points are in `sacobj.depvar`
 
 ###Reading/Writing SAC 
 You can read binary SAC files using
@@ -56,7 +53,7 @@ sacobj3=sacobj1+sacobj2
 sacobj3=sacobj1-sacobj2
 sacobj3=sacobj1*sacobj2
 ```
-(data in sacobj3 will be the sum, substraction and multiplication of sacobj1 and sacobj2). 
+(data points in sacobj3 will be the sum, substraction and multiplication of sacobj1 and sacobj2). 
 
 ###Time integration
 To perform time-integration, you can use:
