@@ -83,7 +83,7 @@ To filter the data:
 ```
 sacobj.filter(freq, order, btype)
 ```
-Applies an IIR filter to the data (using a Butterworth filter). freq is the filter corner frequencie(s) (scalar or list of 2 scalars).
+Applies a butterworth filter to the data. freq is the filter corner frequencie(s) (scalar or list of 2 scalars).
 `btype` can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'. Default values are `order=4` and `btype='lowpass'`.
 
 ###Time
