@@ -83,7 +83,8 @@ To filter the data:
 ```
 sacobj.filter(freq, order, btype)
 ```
-Data will be band-path filtered using a butterworth filter. `btype` can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'. Default values are `order=4` and `btype='lowpass'`.
+Applies an IIR filter to the data (using a Butterworth filter). freq is the filter corner frequencie(s) (scalar or list of 2 scalars).
+`btype` can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'. Default values are `order=4` and `btype='lowpass'`.
 
 ###Time
 To get the reference datetime, you can use:
