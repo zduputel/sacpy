@@ -679,7 +679,8 @@ class sac(object):
             * dec_fac: decimation factor
         '''
 
-        import decimate as decim
+        #import decimate as decim
+        from . import decimate as decim
 
         # Check that headers are correct
         assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
@@ -711,20 +712,21 @@ class sac(object):
             * freq: A scalar or length-2 sequence giving the critical frequencies (in Hz)
             * order:  Order of the filter.
             * btype: {'lowpass', 'highpass', 'bandpass', 'bandstop'}, optional
-              (default is 'lowpass'
+              (default is 'lowpass')
         '''
         
         # Check that headers are correct
         assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
 
         # Filter design
-        if type(Freq) is list:
-            Freq = np.array(Freq)
-        Wn = Freq * 2. * self.delta # Normalizing frequencies
-        b, a = signal.butter(N, Wn, btype)
+        if type(freq) is list:
+            freq = np.array(freq)
+        Wn = freq * 2. * self.delta # Normalizing frequencies
+        sos = signal.butter(order, Wn, btype, output='sos')
         
         # Filter waveform
-        self.depvar = signal.lfilter(b, a, self.depvar)
+        depvar = signal.sosfilt(sos, self.depvar)
+        self.depvar = depvar.astype('float32')
 
         # All done
         return
