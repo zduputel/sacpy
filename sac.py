@@ -730,6 +730,38 @@ class sac(object):
 
         # All done
         return
+
+    def pad(self,tmin = None, tmax = None):
+        '''
+        Padding data with zeros
+        if tmin < self.b - self.o (beginning), adding zeros at the beginning
+        if tmax > self.e - self.o (end), adding zeros at the end
+        '''
+        # Check origin time is assigned
+        assert self.o != -12345., 'Origin time must be assigned'
+        
+        # Get trace beginning and end
+        self.e = self.b + float(self.npts - 1) * self.delta
+        tb = self.b - self.o
+        te = self.e - self.o
+
+        # Set the pad width
+        nbeg = 0
+        nend = 0
+        if tmin < tb:
+            nbeg = int(np.ceil((tb-tmin)/self.delta))
+        if tmax > te:
+            nend = int(np.ceil((tmax-te)/self.delta))
+
+        # Zero padding
+        gout = np.pad(self.depvar,((nbeg,nend),),mode="constant")
+        self.npts = len(gout)
+        self.b = self.b - nbeg * self.delta
+        self.e = self.e + nend * self.delta
+        self.depvar = gout.copy()
+
+        # All done
+        return
         
     def copy(self):
         '''
