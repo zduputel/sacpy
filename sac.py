@@ -748,9 +748,9 @@ class sac(object):
         # Set the pad width
         nbeg = 0
         nend = 0
-        if tmin < tb:
+        if tmin is not None and tmin < tb:
             nbeg = int(np.ceil((tb-tmin)/self.delta))
-        if tmax > te:
+        if tmax is not None and tmax > te:
             nend = int(np.ceil((tmax-te)/self.delta))
 
         # Zero padding
