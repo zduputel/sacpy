@@ -839,7 +839,7 @@ class sac(object):
 
     def time(self):
         '''
-        Returns the time vector of the current data
+        Returns the time vector of the current data relative to nztime
         '''
         time = np.arange(self.npts)*self.delta + self.b
         return time
