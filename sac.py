@@ -51,7 +51,7 @@ class sac(object):
         Constructor
         Args:
             * filename: read sac filename (optional)
-        '''
+        '''        
         self.delta  =  -12345.
         self.depmin =  -12345.
         self.depmax =  -12345.
@@ -140,6 +140,9 @@ class sac(object):
         if filename is not None:
             assert os.path.exists(filename), filename+' not found'
             self.read(filename)
+
+        # Spectrum flag
+        self.spec = False
 
         # All done
         
@@ -292,6 +295,9 @@ class sac(object):
            * FILE: output sac file name
         '''
 
+        # Check that we are in the time domain
+        assert not self.spec, "Can only save seismograms in the time-domain"
+        
         # convert to list
         if type(self.depvar)==list:
             self.depvar = np.array(self.depvar)
@@ -748,9 +754,9 @@ class sac(object):
         # Set the pad width
         nbeg = 0
         nend = 0
-        if tmin < tb:
+        if tmin is not None and tmin < tb:
             nbeg = int(np.ceil((tb-tmin)/self.delta))
-        if tmax > te:
+        if tmax is not None and tmax > te:
             nend = int(np.ceil((tmax-te)/self.delta))
 
         # Zero padding
@@ -762,6 +768,144 @@ class sac(object):
 
         # All done
         return
+
+    def fft(self):
+        '''
+        Compute fourier transform and return the seismogram spectrum
+        Output: Seismogram spectrum in the frequency domain (type: seismogram)        
+        '''
+        spectrum = self.copy()
+        spectrum.spec = True
+        spectrum.depvar = np.fft.rfft(self.depvar)        
+        
+        # All done
+        return spectrum
+
+    def ifft(self):
+        '''
+        Compute the inverse fourrier transform and returns the seismogram spectrum
+        Output: Seismogram in the time domain (type: seismogram)
+        '''
+        seis = self.copy()
+        seis.spec = False
+        seis.depvar=None
+        seis.depvar = np.fft.irfft(self.depvar) 
+        
+        # All done
+        return seis
+
+    def freq(self):
+        '''
+        Returns the frequency vector of the current data
+        '''
+        freq = np.fft.rfftfreq(self.npts,d=self.delta)
+        # All done        
+        return freq
+
+    def evalresp(self,PZ):
+        '''
+        Return frequency response
+        Args:
+            * PZ: dictionary including 'poles', 'zeros' and 'Const'
+        '''
+        s = 2.j*np.pi*self.freq()
+        resp = np.ones(s.shape,dtype=np.complex128)*PZ['Const']
+        for z in PZ['zeros']: resp *= s-z
+        for p in PZ['poles']: resp /= s-p
+        # All done
+        return resp
+
+    def convresp(self,PZ):
+        '''
+        Convolve with instrument response
+        Args:
+            * PZ: dictionary including 'poles', 'zeros' and 'Const'        
+        '''
+        npts = self.npts
+        # Trivial dtrend
+        self.depvar -= self.depvar[0]+np.arange(npts)*(self.depvar[-1]-self.depvar[0])/(npts-1)
+        # Zero padding
+        self.pad(tmax=2*self.e-self.b)
+        # Evaluate the instrument response from Poles and Zeros
+        resp = self.evalresp(PZ)
+        # Convolve with the instrument response
+        self.depvar = np.fft.irfft(resp*np.fft.rfft(self.depvar))[:npts]
+        self.npts = npts
+        self.e    = self.b + float(self.npts)*self.delta
+        self.depmin = self.depvar.min()
+        self.depmax = self.depvar.max()        
+        # All done
+        return
+
+    def time(self):
+        '''
+        Returns the time vector of the current data
+        '''
+        time = np.arange(self.npts)*self.delta + self.b
+        return time
+
+    def plot(self,ptype=None,xlog=False,ylog=False,**kwargs):
+        '''
+        Plot the seismogram or spectrum
+        Args: All arguments are optional
+            - ptype: plot type can be None, 'amp' for absolute amplitude, 'pha' for the phase, 
+                     'real' for the real part or 'imag' for the imaginary part.
+            - xlog: if True use a log scale on the x axis
+            - ylog: if True use a log scale on the y axis
+            - *kwargs* can be used to set line properties in pyplot commands (see help of plt.plot)
+        examples:
+                s.plot(color='r') or s.plot(color='red') will plot the seismogram with a red line
+        Use plt.show() to show the corresponding figure
+        '''
+
+        # Import the matplotlib module
+        import matplotlib.pyplot as plt
+
+        # Check attributes        
+        assert not self.isempty(),'Some attributes are missing (e.g., npts, delta, depvar)'
+
+        # Time or frequency vector
+        if self.spec is False: # Time vector
+            x = self.time()
+            xlabel = 'Time, sec'
+        else: # Frequency vector
+            x = self.freq()
+            xlabel = 'Freq., Hz'  
+        # What do we want to plot?
+        ylabel = 'Amplitude'        
+        if ptype is None and not self.spec: # Standard seismogram plot
+            y = self.depvar
+        elif (ptype is None and self.spec) or ptype == 'amp':  # Amplitude
+            y = np.abs(self.depvar)
+        elif ptype == 'pha':     # Phase
+            y = np.angle(self.depvar)
+            ylabel = 'Phase'            
+        elif ptype == 'real': # Real part
+            y = np.real(self.depvar)
+            ylabel = 'Real part amplitude'
+        elif ptype == 'imag':
+            y = np.imag(self.depvar)
+            ylabel = 'Imag. part amplitude'            
+        else:
+            print('Error: ptype should be None, amp, pha, real or imag')
+            return 1        
+
+        # Do we use log scale?
+        plotf = plt.plot  # Default: no log scale
+        if xlog and ylog: # loglog scale
+            plotf=plt.loglog
+        elif xlog:        # x log scale
+            plotf=plt.semilogx
+        elif ylog:        # y log scale
+            plotf=plt.semilogy
+        
+        # Plot seismogram
+        lines = plotf(x,y,**kwargs)
+        plt.xlabel(xlabel)
+        plt.ylabel(ylabel)
+        
+        # All done
+        return lines    
         
     def copy(self):
         '''
