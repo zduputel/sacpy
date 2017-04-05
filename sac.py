@@ -656,23 +656,28 @@ class sac(object):
         return False
 
         
-    def interpolate(self, delta):
+    def interpolate(self, delta_new):
         '''
-        Interpolates data to a new sampling rate.
+        Interpolates data to a new sampling rate (sinc interpolation)
+        Args:
+            * delta_new: New sampling rate
         '''
 
         # Check that headers are correct
         assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
         
         # time vectors
-        time_org = np.arange(self.npts)*self.delta
-        npts_new = int(np.floor((self.npts-1)*self.delta/delta))
-        time_new = np.arange(npts_new)*delta
+        time_old = np.arange(self.npts,dtype='float32')*self.delta # Time vector before interpolation
+        npts_new = int(np.floor((self.npts-1)*self.delta/delta_new))
+        time_new = np.arange(npts_new,dtype='float32')*delta_new   # Time vector after interpolation
 
-        # Interpolate
-        self.depvar = np.interp(time_new,time_org,self.depvar)
+        # Sinc interpolation
+        depvar_new = np.zeros((npts_new,),dtype='float32')
+        for i in range(npts_new):
+            depvar_new[i] = np.dot(self.depvar,np.sinc((time_new[i]-time_old)/self.delta))        
+        self.depvar = depvar_new.copy()
         self.npts   = npts_new
-        self.delta  = delta
+        self.delta  = delta_new
 
         # All done
         return
