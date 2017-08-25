@@ -63,11 +63,13 @@ sacobj.integrate()
 ```
 
 ###Interpolation
-To (linearly) interpolate the data trace to a new sampling step:
+To interpolate the data trace to a new sampling step:
 ```
 sacobj.interpolate(delta)
 ```
-where delta is the new sampling step (after interpolation). 
+where delta is the new sampling step (after interpolation).
+
+We use a sinc interpolation to avoid aliasing issues. This result in longer computation time than a linear interpolation.
 
 ###Decimation
 To decimate the data:
