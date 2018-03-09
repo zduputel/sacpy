@@ -765,7 +765,7 @@ class sac(object):
             nend = int(np.ceil((tmax-te)/self.delta))
 
         # Zero padding
-        gout = np.pad(self.depvar,((nbeg,nend),),mode="constant")
+        gout = np.pad(self.depvar,((nbeg,nend),),mode="constant",constant_values=0.)
         self.npts = len(gout)
         self.b = self.b - nbeg * self.delta
         self.e = self.e + nend * self.delta
@@ -828,15 +828,15 @@ class sac(object):
         '''
         npts = self.npts
         # Trivial dtrend
-        self.depvar -= self.depvar[0]+np.arange(npts)*(self.depvar[-1]-self.depvar[0])/(npts-1)
+        #self.depvar -= self.depvar[0]+np.arange(npts)*(self.depvar[-1]-self.depvar[0])/(npts-1)
         # Zero padding
-        self.pad(tmax=2*self.e-self.b)
+        self.pad(tmax=2*self.e-self.o)
         # Evaluate the instrument response from Poles and Zeros
         resp = self.evalresp(PZ)
         # Convolve with the instrument response
         self.depvar = np.fft.irfft(resp*np.fft.rfft(self.depvar))[:npts]
         self.npts = npts
-        self.e    = self.b + float(self.npts)*self.delta
+        #self.e    = self.b + float(self.npts)*self.delta
         self.depmin = self.depvar.min()
         self.depmax = self.depvar.max()        
         # All done
