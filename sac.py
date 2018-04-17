@@ -625,7 +625,7 @@ class sac(object):
     
     def integrate(self):
         '''
-        Performs integration using the traperoidal rule
+        Integration using the traperoidal rule
         '''
 
         # Integration
@@ -643,6 +643,20 @@ class sac(object):
         
         # All done
         return
+
+    def derivate(self):
+        '''
+        Derivate using a two point difference operator
+        '''
+        # Two-point derivative
+        self.depvar = (self.depvar[1:]-self.depvar[:-1])/self.delta
+
+        # Adjusting the number of points and begin/end times
+        self.npts -= 1
+        self.b += 0.5 * self.delta
+        self.e = self.b + float(self.npts - 1) * self.delta
+
+        # All done
 
 
     def isempty(self):
