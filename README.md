@@ -1,5 +1,5 @@
 
-#SACPY
+# SACPY
 
 Sacpy is a simple python module that deals with binary SAC files.
 
