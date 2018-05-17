@@ -440,6 +440,59 @@ class sac(object):
         # All done
         return nztime
 
+    def getdatetime(self,time_param):
+        '''
+        Get a datetime object from a sac time parameter
+        Args:
+            * time_param: sac time parameter defined as a time 
+                difference (in seconds) with respect to nztime
+                (e.g., o, b, e, t[0], ...)
+        '''
+        # Check that time_param is set
+        assert int(time_param) != -12345, 'Parameter not set'
+        # Get nzdatetime
+        nztime = self.getnzdatetime()
+        # Define dt_o
+        dt_o = timedelta(seconds=int(time_param))
+        # Get otime
+        otime = nztime + dt_o
+        # All done 
+        return otime
+
+    def getodatetime(self):
+        '''
+        Get a origin datetime object
+        '''
+        # All done
+        return self.getdatetime(self.o)
+
+    def getbdatetime(self):
+        '''
+        Get a begin datetime object
+        '''
+        # All done
+        return self.getdatetime(self.b)
+
+    def getedatetime(self):
+        '''
+        Get an end datetime object
+        '''
+        # Recompute end time (just to be sure everything is all right)
+        self.e = self.b + float(self.npts-1) * self.delta
+        # All done
+        return self.getdatetime(self.e)
+
+    def getarrivaldatetimes(self):
+        '''
+        Get a dictionary of arrival time objects
+        '''
+        # Loop on travel times
+        phase_datetimes = {}
+        for i,t in enumerate(self.t):
+            if int(t)!=-12345:
+                phase_datetimes[self.kt[i]] = self.getdatetime(t)
+        # All done
+        return phase_datetimes
 
     def setotime(self,otime):
         '''
@@ -454,7 +507,6 @@ class sac(object):
         self.o  = np.float32((otime-nztime).total_seconds())
 
         # All done
-
         
     def setarrivaltimes(self,phase_dict):
         '''
@@ -788,6 +840,30 @@ class sac(object):
         # All done
         return
 
+    def cut(self,beg,end):
+        '''
+        Cut data given beg/end datetime
+        '''
+
+        # Get time vector
+        nztime = self.getnzdatetime()
+        b  = self.b
+        dt = self.delta
+        time = [timedelta(seconds=b+i*dt) for i in np.arange(self.npts)]
+        time = np.array(time) + nztime
+
+        # Extract data between beg and end
+        i = np.where((time>=beg)*(time<=end))[0]
+
+        # Only
+        self.b    = (time[i[0]]  - nztime).total_seconds()
+        self.e    = (time[i[-1]] - nztime).total_seconds()
+        self.npts = len(i)
+        self.depvar = self.depvar[i]
+
+        # All done
+        return
+
     def fft(self):
         '''
         Compute fourier transform and return the seismogram spectrum
@@ -861,6 +937,7 @@ class sac(object):
         Returns the time vector of the current data relative to nztime
         '''
         time = np.arange(self.npts)*self.delta + self.b
+        # All done
         return time
 
     def plot(self,ptype=None,xlog=False,ylog=False,**kwargs):
