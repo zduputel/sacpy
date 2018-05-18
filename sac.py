@@ -825,12 +825,10 @@ class sac(object):
     def pad(self,tmin = None, tmax = None):
         '''
         Padding data with zeros
-        if tmin < self.b - self.o (beginning), adding zeros at the beginning
-        if tmax > self.e - self.o (end), adding zeros at the end
+        if tmin < self.b (beginning), adding zeros at the beginning
+        if tmax > self.e (end), adding zeros at the end
         '''
-        # Check origin time is assigned
-        assert self.o != -12345., 'Origin time must be assigned'
-        
+
         # Get trace beginning and end
         self.e = self.b + float(self.npts - 1) * self.delta
         tb = self.b - self.o
@@ -949,7 +947,7 @@ class sac(object):
 
         # Zero padding
         npts = self.npts
-        self.pad(tmax=2*self.e-self.o)
+        self.pad(tmax=self.b+2.*self.npts*self.delta)
 
         # Evaluate the instrument response from Poles and Zeros
         resp = self.evalresp(PZ)
@@ -977,7 +975,7 @@ class sac(object):
 
         # Zero padding
         npts = self.npts
-        self.pad(tmax=2*self.e-self.o)
+        self.pad(tmax=self.b+2.*self.npts*self.delta)
 
         # Design cosine-tapered filter
         freq = self.freq()
@@ -1007,11 +1005,48 @@ class sac(object):
         resp = self.evalresp(PZ)
 
         # Remove instrument and filter
-        self.depvar = np.fft.irfft(filt*np.fft.rfft(self.depvar)/resp)[:npts]
+        if freq[0] == 0.:
+            resp[0] = 1.
+            filt[0] = 0.
+        F = np.fft.rfft(self.depvar)*(filt/resp)
+        self.depvar = np.fft.irfft(F)[:npts]
 
         # Reset depmin/depmax
         self.resetdepmindepmax()
     
+        # All done
+        return
+
+    def rmean(self):
+        '''
+        Remove means
+        '''
+        self.depvar -= self.depvar.mean()
+
+        # All done
+        return
+
+    def detrend(self,Npoints=None,poly_order=1):
+        '''
+        Remove linear trend along axis from data
+        Args:
+            * Npoints: (optional) remove linear trend from linear fit only on the first Npoints
+            * poly_order: Polynomial order
+        '''
+        # Linear fit
+        x = self.time()-self.b
+        y = self.depvar
+        if Npoints:
+            x = x[:Npoints]
+            y = self.depvar[:Npoints]
+        p = np.poly1d(np.polyfit(x,y,poly_order))
+
+        # Remove trend
+        self.depvar -= p(self.time()-self.b)
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
+        
         # All done
         return
 

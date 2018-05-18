@@ -8,3 +8,4 @@ Written by Z. Duputel, December 2013
 from .sac import sac
 
 from . import decimate
+from .utils import *
