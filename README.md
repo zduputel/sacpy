@@ -16,7 +16,7 @@ To use sacpy, simply import the sacpy module
 ```
 import sacpy
 ```
-or 
+or for example
 ```
 from sacpy import sac
 ```
@@ -106,16 +106,21 @@ and above f4.  Frequencies f1 and f2 specify the high-pass filter while f3 and f
 The filters applied between f1 and f2 and between f3 and f4 are quarter cycles of a cosine wave.
 
 
-### Time
+### Dealing with time
 To get the reference datetime, you can use:
 ```
 sacobj.getnzdatetime()
 ```
-Similarly, to get the origin, begin, end or arrival datetimes, you can use:
+Similarly, to get the origin, begin, end or arrival datetimes:
 ```
 sacobj.getodatetime()
 sacobj.getbdatetime()
 sacobj.getarrivaldatetimes()
+```
+
+To get a time-vector from the reference datetime:
+```
+sacobj.time()
 ```
 
 To set the origin time, you can use:
@@ -131,5 +136,27 @@ sacobj.setarrivaltimes(phase_dict)
 ```
 where phase_dict is a phase pick dictionary {phase_name: arrival_datetime)
 
+### Fourier transform
+To do a fourrier transform, you can use:
+```
+sacobj.fft()
+```
+The Fourier transform is done using the function numpy.fft.rfft
+the result will be returned and also stored in self.depvar. 
 
+If you want to get the corresponding frequency:
+```
+sacobj.freq()
+```
 
+### Plot
+To plot the seismogram with matplotlib.pyplot:
+```
+sacobj.plot()
+```
+
+To plot the amplitude spectum of the seismogram:
+```
+sacobj.fft()
+sacobj.plot()
+```
