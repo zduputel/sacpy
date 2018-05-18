@@ -721,6 +721,12 @@ class sac(object):
         # All done
         return False
 
+    def resetdepmindepmax(self):
+        '''
+        Reset depmin/depmax attributes
+        '''
+        self.depmin = self.depvar.min()
+        self.depmax = self.depvar.max() 
         
     def interpolate(self, delta_new):
         '''
@@ -744,6 +750,9 @@ class sac(object):
         self.depvar = depvar_new.copy()
         self.npts   = npts_new
         self.delta  = delta_new
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
 
         # All done
         return
@@ -781,6 +790,8 @@ class sac(object):
             self.delta *= np.float32(c)
         self.npts = len(self.depvar)
 
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
 
     def filter(self, freq, order=4, btype='lowpass'):
         '''
@@ -804,6 +815,9 @@ class sac(object):
         # Filter waveform
         depvar = signal.sosfilt(sos, self.depvar)
         self.depvar = depvar.astype('float32')
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
 
         # All done
         return
@@ -837,8 +851,14 @@ class sac(object):
         self.e = self.e + nend * self.delta
         self.depvar = gout.copy()
 
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
+
         # All done
         return
+
+    
+
 
     def cut(self,beg,end):
         '''
@@ -860,6 +880,9 @@ class sac(object):
         self.e    = (time[i[-1]] - nztime).total_seconds()
         self.npts = len(i)
         self.depvar = self.depvar[i]
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
 
         # All done
         return
@@ -903,10 +926,17 @@ class sac(object):
         Args:
             * PZ: dictionary including 'poles', 'zeros' and 'Const'
         '''
+        # Check that the PZ dictionary is complete
+        assert 'zeros' in PZ, 'zeros key must be specified in the PZ dictionary'
+        assert 'poles' in PZ, 'poles key must be specified in the PZ dictionary'
+        assert 'Const' in PZ, 'Const key must be specified in the PZ dictionary'
+
+        # Evaluate the response in the frequency domain
         s = 2.j*np.pi*self.freq()
         resp = np.ones(s.shape,dtype=np.complex128)*PZ['Const']
         for z in PZ['zeros']: resp *= s-z
         for p in PZ['poles']: resp /= s-p
+
         # All done
         return resp
 
@@ -916,19 +946,72 @@ class sac(object):
         Args:
             * PZ: dictionary including 'poles', 'zeros' and 'Const'        
         '''
-        npts = self.npts
-        # Trivial dtrend
-        #self.depvar -= self.depvar[0]+np.arange(npts)*(self.depvar[-1]-self.depvar[0])/(npts-1)
+
         # Zero padding
+        npts = self.npts
         self.pad(tmax=2*self.e-self.o)
+
         # Evaluate the instrument response from Poles and Zeros
         resp = self.evalresp(PZ)
+
         # Convolve with the instrument response
         self.depvar = np.fft.irfft(resp*np.fft.rfft(self.depvar))[:npts]
         self.npts = npts
-        #self.e    = self.b + float(self.npts)*self.delta
-        self.depmin = self.depvar.min()
-        self.depmax = self.depvar.max()        
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
+
+        # All done
+        return
+
+    def deconvresp(self,PZ,filtfreq=None):
+        '''
+        Deconvolve with instrument response
+        Args:
+            * PZ: dictionary including 'poles', 'zeros' and 'Const'
+            * filtfreq: list (or array) of 4 frequencies f1<f2<f3<f4 to
+                cope with zero response at zero frequency. It will
+                apply a cosine high-pass cosine taper between f1 and f2 
+                and a low-pass cosine taper between f3 and f4
+        ''' 
+
+        # Zero padding
+        npts = self.npts
+        self.pad(tmax=2*self.e-self.o)
+
+        # Design cosine-tapered filter
+        freq = self.freq()
+        filt = np.ones(freq.shape)
+        if filtfreq is not None:
+            # Check filtfreq input
+            filtfreq=np.array(filtfreq)
+            assert filtfreq.size==4, 'filtfreq must be a list or array including 4 frequencies'
+            assert (np.sort(filtfreq)==filtfreq).all(), 'f1<f2<f3<f4 in filtfreq not verified'
+            f1,f2,f3,f4 = filtfreq
+
+            # Taper bounds
+            i1 = np.where(freq<f1)[0]
+            i2 = np.where((freq>=f1)*(freq<=f2))[0]
+            i3 = np.where((freq>=f3)*(freq<=f4))[0]
+            i4 = np.where(freq>f4)[0]
+            df1 = f2-f1
+            df2 = f4-f3
+
+            # filter
+            filt[i1] *= 0.
+            filt[i4] *= 0.
+            filt[i2] *= 0.5*(1+np.cos(np.pi/df1*(freq[i2]-f1-df1)))
+            filt[i3] *= 0.5*(1+np.cos(np.pi/df2*(freq[i3]-f3)))
+
+        # Evaluate instrument response from Poles and Zeros
+        resp = self.evalresp(PZ)
+
+        # Remove instrument and filter
+        self.depvar = np.fft.irfft(filt*np.fft.rfft(self.depvar)/resp)[:npts]
+
+        # Reset depmin/depmax
+        self.resetdepmindepmax()
+    
         # All done
         return
 
@@ -937,6 +1020,7 @@ class sac(object):
         Returns the time vector of the current data relative to nztime
         '''
         time = np.arange(self.npts)*self.delta + self.b
+
         # All done
         return time
 
@@ -967,6 +1051,7 @@ class sac(object):
         else: # Frequency vector
             x = self.freq()
             xlabel = 'Freq., Hz'  
+
         # What do we want to plot?
         ylabel = 'Amplitude'        
         if ptype is None and not self.spec: # Standard seismogram plot
