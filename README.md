@@ -24,7 +24,7 @@ from sacpy import sac
 
 In the sac class, attributes have the same name as sac header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by `sacobj.npts`. The data points are in `sacobj.depvar`
 
-###Reading/Writing SAC 
+### Reading/Writing SAC 
 You can read binary SAC files using
 ```
 sacobj = sacpy.sac()
@@ -41,13 +41,13 @@ You can write binary SAC files using
 sacobj.write("SAC_FILENAME")
 ```
 
-###Copy sac object
+### Copy sac object
 To (deep) copy a sac object sacobj in a new sacobjcopy, you can use:
 ```
 sacobjcopy = sacobj.copy()
 ```
 
-###Addition, substraction, multiplication
+### Addition, substraction, multiplication
 If you have 2 sac objects sacobj1 and sacobj2 (including the same number of samples), you can add, substract, multiply waveforms of the 2 files using:
 ```
 sacobj3=sacobj1+sacobj2
@@ -56,13 +56,13 @@ sacobj3=sacobj1*sacobj2
 ```
 (data points in sacobj3 will be the sum, substraction and multiplication of sacobj1 and sacobj2). 
 
-###Time integration
+### Time integration
 To perform time-integration, you can use:
 ```
 sacobj.integrate()
 ```
 
-###Interpolation
+### Interpolation
 To interpolate the data trace to a new sampling step:
 ```
 sacobj.interpolate(delta)
@@ -71,7 +71,7 @@ where delta is the new sampling step (after interpolation).
 
 We use a sinc interpolation to avoid aliasing issues. This result in longer computation time than a linear interpolation.
 
-###Decimation
+### Decimation
 To decimate the data:
 ```
 sacobj.decimate(decimation_factor)
@@ -80,7 +80,7 @@ Currently, only the following decimation factors are available:
 1, 2, 3, 5, 10, 20, 25, 30, 40, 50, 60, 75, 80, 90, 100, 120
 Decimation includes a proper anti-aliasing FIR filter.
 
-###Filtering
+### Filtering
 To filter the data:
 ```
 sacobj.filter(freq, order, btype)
@@ -88,7 +88,25 @@ sacobj.filter(freq, order, btype)
 Applies a butterworth filter to the data. freq is the filter corner frequencie(s) (scalar or list of 2 scalars).
 `btype` can be 'lowpass', 'highpass', 'bandpass' and 'bandstop'. Default values are `order=4` and `btype='lowpass'`.
 
-###Time
+### Instrument correction
+To deconvolve, the instrument response using a dictionary of poles and zeros (PZ). 
+
+The PZ dictionary can be built from a poles and zeros file using the function readPZ as follows:
+```
+import sacpy
+
+s = sacpy.sac('SAC_FILENAME') 
+PZ = readPZ('SAC_PZs_FILENAME')
+filtfreq = [0.001,0.005,0.01 0.1]
+s.deconvresp(PZ,filtfreq)
+```
+To deal with the zero response at zero frequency, it is usually necessary to filter the signal during deconvolution.
+filtfreq can be used for that by defining four frequencies (f1<f2<f3<f4). Taper is 1 between f2 and f3 and 0 below f1 
+and above f4.  Frequencies f1 and f2 specify the high-pass filter while f3 and f4 specify the low-pass filter. 
+The filters applied between f1 and f2 and between f3 and f4 are quarter cycles of a cosine wave.
+
+
+### Time
 To get the reference datetime, you can use:
 ```
 sacobj.getnzdatetime()
