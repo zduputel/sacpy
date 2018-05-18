@@ -111,6 +111,12 @@ To get the reference datetime, you can use:
 ```
 sacobj.getnzdatetime()
 ```
+Similarly, to get the origin, begin, end or arrival datetimes, you can use:
+```
+sacobj.getodatetime()
+sacobj.getbdatetime()
+sacobj.getarrivaldatetimes()
+```
 
 To set the origin time, you can use:
 ```
