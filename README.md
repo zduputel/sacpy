@@ -113,14 +113,14 @@ sacobj.getnzdatetime()
 ```
 Similarly, to get the origin, begin, end or arrival datetimes:
 ```
-sacobj.getodatetime()
-sacobj.getbdatetime()
-sacobj.getarrivaldatetimes()
+otime = sacobj.getodatetime()
+btime = sacobj.getbdatetime()
+etime = sacobj.getarrivaldatetimes()
 ```
 
 To get a time-vector from the reference datetime:
 ```
-sacobj.time()
+timevec = sacobj.time()
 ```
 
 To set the origin time, you can use:
@@ -146,7 +146,7 @@ the result will be returned and also stored in self.depvar.
 
 If you want to get the corresponding frequency:
 ```
-sacobj.freq()
+freqvec = sacobj.freq()
 ```
 
 ### Plot
