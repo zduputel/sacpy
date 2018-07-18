@@ -543,7 +543,7 @@ class sac(object):
         '''        
 
         # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray)
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
         assert isinstance(other,accepted), 'Unsuported type'
         
         # Copy current object
@@ -566,7 +566,7 @@ class sac(object):
             flag = True
 
         # Adding real number
-        if isinstance(other,(int,float)):
+        if isinstance(other,(int,float,np.float32,np.float64)):
             res.depvar += other
             flag = True
 
@@ -590,7 +590,7 @@ class sac(object):
         '''        
 
         # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray)
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
         assert isinstance(other,accepted), 'Unsuported type'
         
         # Copy current object
@@ -613,9 +613,8 @@ class sac(object):
             flag = True
 
         # Adding real number
-        if isinstance(other,(int,float)):
+        if isinstance(other,(int,float,np.float32,np.float64)):
             res.depvar -= other
-            flag = True
 
         # Re-assign min and max amplitudes
         res.depmin  = res.depvar.min()
@@ -637,14 +636,14 @@ class sac(object):
         '''        
 
         # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray)
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
         assert isinstance(other,accepted), 'Unsuported type'
         
         # Copy current object
         res  = self.copy()
         flag = False
 
-        # Adding two sac files
+        # Multiplying two sac files
         if isinstance(other,self.__class__):
             assert self.npts  == other.npts,  'Header field mismatch: npts'
             assert self.delta == other.delta, 'Header field mismatch: delta'
@@ -653,15 +652,62 @@ class sac(object):
             res.depvar *= other.depvar
             flag = True
 
-        # Adding array or list
+        # Multiplying by an array or a list
         if isinstance(other,(list,np.ndarray)):
             assert len(other)==self.npts, 'Header field mismatch: npts'
             res.depvar *= other
             flag = True
 
-        # Adding real number
-        if isinstance(other,(int,float)):
+        # Multiplying by a real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
             res.depvar *= other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
+
+    def __div__(self, other):
+        '''
+        Multiplication operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        ''' 
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Dividing by a sac file
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar /= other.depvar
+            flag = True
+
+        # Dividing by an array or a list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar /= other
+            flag = True
+
+        # Dividing by a real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
+            res.depvar /= other
             flag = True
 
         # Re-assign min and max amplitudes
