@@ -1054,6 +1054,17 @@ class sac(object):
         # All done
         return
 
+    def taper(self,alpha=0.1):
+        '''
+        Applies a symmetric cosine taper to each end of data
+        Args:
+            * alpha: taper width (value between 0. and 1.)
+        '''
+        H = signal.tukey(self.npts,alpha=alpha,sym=True)
+        self.depvar *= H
+        # All done
+        return
+
     def time(self):
         '''
         Returns the time vector of the current data relative to nztime
