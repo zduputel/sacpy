@@ -885,14 +885,18 @@ class sac(object):
         # All done
         return
 
-    def fft(self):
+    def fft(self,n=None):
         '''
         Compute fourier transform and return the seismogram spectrum
         Output: Seismogram spectrum in the frequency domain (type: seismogram)        
+        Args:
+            n: Number of points for the fft (default is npts)
         '''
         spectrum = self.copy()
         spectrum.spec = True
-        spectrum.depvar = np.fft.rfft(self.depvar)        
+        spectrum.depvar = np.fft.rfft(self.depvar,n=n) 
+        if n is not None:
+            spectrum.npts = n
         
         # All done
         return spectrum
