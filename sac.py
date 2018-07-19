@@ -913,15 +913,16 @@ class sac(object):
         nztime = self.getnzdatetime()
         b  = self.b
         dt = self.delta
-        time = [timedelta(seconds=b+i*dt) for i in np.arange(self.npts)]
-        time = np.array(time) + nztime
+        time = np.arange(self.npts)*dt + b
 
         # Extract data between beg and end
-        i = np.where((time>=beg)*(time<=end))[0]
+        tbeg = (beg-nztime).total_seconds()
+        tend = (end-nztime).total_seconds()
+        i = np.where((time>=tbeg)*(time<=tend))[0]
 
         # Only
-        self.b    = (time[i[0]]  - nztime).total_seconds()
-        self.e    = (time[i[-1]] - nztime).total_seconds()
+        self.b    = time[i[0]]
+        self.e    = time[i[-1]]
         self.npts = len(i)
         self.depvar = self.depvar[i]
 
