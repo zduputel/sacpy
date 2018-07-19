@@ -1111,11 +1111,14 @@ class sac(object):
         # All done
         return
 
-    def time(self):
+    def time(self,datetime_format=False):
         '''
         Returns the time vector of the current data relative to nztime
         '''
         time = np.arange(self.npts)*self.delta + self.b
+        if datetime_format:
+            r = self.getnzdatetime()
+            time = np.array([r+timedelta(seconds=t) for t in time])
 
         # All done
         return time
