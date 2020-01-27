@@ -532,194 +532,6 @@ class sac(object):
                         
         # All done
 
-
-    def __add__(self, other):
-        '''
-        Addition operation.         
-        other can be:
-          - sacpy.sac object
-          - list or ndarray
-          - real number (float or int)
-        '''        
-
-        # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
-        assert isinstance(other,accepted), 'Unsuported type'
-        
-        # Copy current object
-        res  = self.copy()
-        flag = False
-
-        # Adding two sac files
-        if isinstance(other,self.__class__):
-            assert self.npts  == other.npts,  'Header field mismatch: npts'
-            assert self.delta == other.delta, 'Header field mismatch: delta'
-            assert self.b     == other.b,     'Header field mismatch: b'
-            assert self.e     == other.e,     'Header field mismatch: e'          
-            res.depvar += other.depvar
-            flag = True
-
-        # Adding array or list
-        if isinstance(other,(list,np.ndarray)):
-            assert len(other)==self.npts, 'Header field mismatch: npts'
-            res.depvar += other
-            flag = True
-
-        # Adding real number
-        if isinstance(other,(int,float,np.float32,np.float64)):
-            res.depvar += other
-            flag = True
-
-        # Re-assign min and max amplitudes
-        res.depmin  = res.depvar.min()
-        res.depmax  = res.depvar.max()
-        
-        # Check that operation was done
-        assert flag, 'Operation could not be completed'
-        
-        # All done
-        return res
-
-    def __sub__(self, other):
-        '''
-        Substraction operation.         
-        other can be:
-          - sacpy.sac object
-          - list or ndarray
-          - real number (float or int)
-        '''        
-
-        # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
-        assert isinstance(other,accepted), 'Unsuported type'
-        
-        # Copy current object
-        res  = self.copy()
-        flag = False
-
-        # Adding two sac files
-        if isinstance(other,self.__class__):
-            assert self.npts  == other.npts,  'Header field mismatch: npts'
-            assert self.delta == other.delta, 'Header field mismatch: delta'
-            assert self.b     == other.b,     'Header field mismatch: b'
-            assert self.e     == other.e,     'Header field mismatch: e'          
-            res.depvar -= other.depvar
-            flag = True
-
-        # Adding array or list
-        if isinstance(other,(list,np.ndarray)):
-            assert len(other)==self.npts, 'Header field mismatch: npts'
-            res.depvar -= other
-            flag = True
-
-        # Adding real number
-        if isinstance(other,(int,float,np.float32,np.float64)):
-            res.depvar -= other
-
-        # Re-assign min and max amplitudes
-        res.depmin  = res.depvar.min()
-        res.depmax  = res.depvar.max()
-        
-        # Check that operation was done
-        assert flag, 'Operation could not be completed'
-        
-        # All done
-        return res    
-
-    def __mul__(self, other):
-        '''
-        Multiplication operation.         
-        other can be:
-          - sacpy.sac object
-          - list or ndarray
-          - real number (float or int)
-        '''        
-
-        # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
-        assert isinstance(other,accepted), 'Unsuported type'
-        
-        # Copy current object
-        res  = self.copy()
-        flag = False
-
-        # Multiplying two sac files
-        if isinstance(other,self.__class__):
-            assert self.npts  == other.npts,  'Header field mismatch: npts'
-            assert self.delta == other.delta, 'Header field mismatch: delta'
-            assert self.b     == other.b,     'Header field mismatch: b'
-            assert self.e     == other.e,     'Header field mismatch: e'          
-            res.depvar *= other.depvar
-            flag = True
-
-        # Multiplying by an array or a list
-        if isinstance(other,(list,np.ndarray)):
-            assert len(other)==self.npts, 'Header field mismatch: npts'
-            res.depvar *= other
-            flag = True
-
-        # Multiplying by a real number
-        if isinstance(other,(int,float,np.float32,np.float64)):
-            res.depvar *= other
-            flag = True
-
-        # Re-assign min and max amplitudes
-        res.depmin  = res.depvar.min()
-        res.depmax  = res.depvar.max()
-        
-        # Check that operation was done
-        assert flag, 'Operation could not be completed'
-        
-        # All done
-        return res
-
-    def __div__(self, other):
-        '''
-        Multiplication operation.         
-        other can be:
-          - sacpy.sac object
-          - list or ndarray
-          - real number (float or int)
-        ''' 
-
-        # Check if the operation can be done
-        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
-        assert isinstance(other,accepted), 'Unsuported type'
-        
-        # Copy current object
-        res  = self.copy()
-        flag = False
-
-        # Dividing by a sac file
-        if isinstance(other,self.__class__):
-            assert self.npts  == other.npts,  'Header field mismatch: npts'
-            assert self.delta == other.delta, 'Header field mismatch: delta'
-            assert self.b     == other.b,     'Header field mismatch: b'
-            assert self.e     == other.e,     'Header field mismatch: e'          
-            res.depvar /= other.depvar
-            flag = True
-
-        # Dividing by an array or a list
-        if isinstance(other,(list,np.ndarray)):
-            assert len(other)==self.npts, 'Header field mismatch: npts'
-            res.depvar /= other
-            flag = True
-
-        # Dividing by a real number
-        if isinstance(other,(int,float,np.float32,np.float64)):
-            res.depvar /= other
-            flag = True
-
-        # Re-assign min and max amplitudes
-        res.depmin  = res.depvar.min()
-        res.depmax  = res.depvar.max()
-        
-        # Check that operation was done
-        assert flag, 'Operation could not be completed'
-        
-        # All done
-        return res
-
     
     def integrate(self):
         '''
@@ -1026,7 +838,8 @@ class sac(object):
 
         # Zero padding
         npts = self.npts
-        self.pad(tmax=self.b+2.*self.npts*self.delta)
+        npts2 = int(2**np.ceil(np.log2(abs(npts))))
+        self.pad(tmax=self.b+npts2*self.delta)
 
         # Design cosine-tapered filter
         freq = self.freq()
@@ -1061,6 +874,7 @@ class sac(object):
             filt[0] = 0.
         F = np.fft.rfft(self.depvar)*(filt/resp)
         self.depvar = np.fft.irfft(F)[:npts]
+        self.npts = npts
 
         # Reset depmin/depmax
         self.resetdepmindepmax()
@@ -1187,7 +1001,194 @@ class sac(object):
         
         # All done
         return lines    
+
+    def __add__(self, other):
+        '''
+        Addition operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
+        assert isinstance(other,accepted), 'Unsuported type'
         
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Adding two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar += other.depvar
+            flag = True
+
+        # Adding array or list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar += other
+            flag = True
+
+        # Adding real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
+            res.depvar += other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
+
+    def __sub__(self, other):
+        '''
+        Substraction operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Adding two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar -= other.depvar
+            flag = True
+
+        # Adding array or list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar -= other
+            flag = True
+
+        # Adding real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
+            res.depvar -= other
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res    
+
+    def __mul__(self, other):
+        '''
+        Multiplication operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        '''        
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Multiplying two sac files
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar *= other.depvar
+            flag = True
+
+        # Multiplying by an array or a list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar *= other
+            flag = True
+
+        # Multiplying by a real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
+            res.depvar *= other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
+
+    def __div__(self, other):
+        '''
+        Multiplication operation.         
+        other can be:
+          - sacpy.sac object
+          - list or ndarray
+          - real number (float or int)
+        ''' 
+
+        # Check if the operation can be done
+        accepted=(self.__class__,int,float,list,np.ndarray,np.float32,np.float64)
+        assert isinstance(other,accepted), 'Unsuported type'
+        
+        # Copy current object
+        res  = self.copy()
+        flag = False
+
+        # Dividing by a sac file
+        if isinstance(other,self.__class__):
+            assert self.npts  == other.npts,  'Header field mismatch: npts'
+            assert self.delta == other.delta, 'Header field mismatch: delta'
+            assert self.b     == other.b,     'Header field mismatch: b'
+            assert self.e     == other.e,     'Header field mismatch: e'          
+            res.depvar /= other.depvar
+            flag = True
+
+        # Dividing by an array or a list
+        if isinstance(other,(list,np.ndarray)):
+            assert len(other)==self.npts, 'Header field mismatch: npts'
+            res.depvar /= other
+            flag = True
+
+        # Dividing by a real number
+        if isinstance(other,(int,float,np.float32,np.float64)):
+            res.depvar /= other
+            flag = True
+
+        # Re-assign min and max amplitudes
+        res.depmin  = res.depvar.min()
+        res.depmax  = res.depvar.max()
+        
+        # Check that operation was done
+        assert flag, 'Operation could not be completed'
+        
+        # All done
+        return res
+
     def copy(self):
         '''
         Returns a copy of the sac object
