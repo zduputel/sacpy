@@ -287,7 +287,7 @@ class sac(object):
         
         # All done
 
-        
+
     def write(self,FILE):
         '''
         Write sac file
@@ -689,8 +689,8 @@ class sac(object):
 
         # Get trace beginning and end
         self.e = self.b + float(self.npts - 1) * self.delta
-        tb = self.b - self.o
-        te = self.e - self.o
+        tb = self.b
+        te = self.e
 
         # Set the pad width
         nbeg = 0
