@@ -620,7 +620,7 @@ class sac(object):
         '''
         Decimates data
         Args:
-            * dec_fac: decimation factor
+            * dec_fac: decimation factor 
         '''
 
         #import decimate as decim
@@ -630,7 +630,7 @@ class sac(object):
         assert not self.isempty(), 'Some sac attributes are missing (e.g., npts, delta, depvar)'
 
         # Check decimation factor
-        assert dec_fac in decim.FACS, 'Incorrect decimation factor'
+        assert dec_fac in decim.FACS, 'Incorrect decimation factor (available: %s)'%(', '.join([str(f) for f in decim.FACS]))
 
         # Init filters
         fir = {2: decim.FIRfilter(decim.FIRDEC2),
