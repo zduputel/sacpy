@@ -4,7 +4,7 @@ A simple function to decimate sac files
 
 import numpy as np
 
-class FIRFilter(object):
+class FirFilter(object):
     ''' 
     FIR filter class
     '''

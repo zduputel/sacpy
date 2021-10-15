@@ -633,10 +633,10 @@ class Sac(object):
         assert dec_fac in decim.FACS, 'Incorrect decimation factor (available: %s)'%(', '.join([str(f) for f in decim.FACS]))
 
         # Init filters
-        fir = {2: decim.FIRFilter(decim.FIRDEC2),
-               3: decim.FIRFilter(decim.FIRDEC3),
-               4: decim.FIRFilter(decim.FIRDEC4),
-               5: decim.FIRFilter(decim.FIRDEC5)}
+        fir = {2: decim.FirFilter(decim.FIRDEC2),
+               3: decim.FirFilter(decim.FIRDEC3),
+               4: decim.FirFilter(decim.FIRDEC4),
+               5: decim.FirFilter(decim.FIRDEC5)}
 
         # Filter cascade
         fir_cascade = decim.FACS[dec_fac]
