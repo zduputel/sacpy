@@ -18,23 +18,23 @@ import sacpy
 ```
 or for example
 ```
-from sacpy import sac
+from sacpy import Sac
 ```
-(sac is the class used to manipulate SAC files)
+(Sac is the class used to manipulate SAC files)
 
-In the sac class, attributes have the same name as sac header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by `sacobj.npts`. The data points are in `sacobj.depvar`
+In the Sac class, attributes have the same name as SAC header variables (see [the SAC documentation](http://ds.iris.edu/files/sac-manual/manual/file_format.html)). For example, the number of data points is given by `sacobj.npts`. The data points are in `sacobj.depvar`
 
 ### Reading/Writing SAC 
 You can read binary SAC files using
 ```
-sacobj = sacpy.sac()
+sacobj = sacpy.Sac()
 sacobj.read("SAC_FILENAME")
 ```
 or
 ```
-sacobj = sacpy.sac("SAC_FILENAME")
+sacobj = sacpy.Sac("SAC_FILENAME")
 ```
-In the first case, we first instantiate a sac object and then read the SAC file. In the second case, we instantiate and read the sac file on the fly. 
+In the first case, we first instantiate a Sac object and then read the SAC file. In the second case, we instantiate and read the SAC file on the fly. 
 
 You can write binary SAC files using
 ```
@@ -42,13 +42,13 @@ sacobj.write("SAC_FILENAME")
 ```
 
 ### Copy sac object
-To (deep) copy a sac object sacobj in a new sacobjcopy, you can use:
+To (deep) copy a Sac object sacobj in a new sacobjcopy, you can use:
 ```
 sacobjcopy = sacobj.copy()
 ```
 
 ### Addition, substraction, multiplication
-If you have 2 sac objects sacobj1 and sacobj2 (including the same number of samples), you can add, substract, multiply waveforms of the 2 files using:
+If you have 2 Sac objects sacobj1 and sacobj2 (including the same number of samples), you can add, substract, multiply waveforms of the 2 files using:
 ```
 sacobj3=sacobj1+sacobj2
 sacobj3=sacobj1-sacobj2
@@ -95,7 +95,7 @@ The PZ dictionary can be built from a poles and zeros file using the function re
 ```
 import sacpy
 
-s = sacpy.sac('SAC_FILENAME') 
+s = sacpy.Sac('SAC_FILENAME') 
 PZ = readPZ('SAC_PZs_FILENAME')
 filtfreq = [0.001,0.005,0.01 0.1]
 s.deconvresp(PZ,filtfreq)
