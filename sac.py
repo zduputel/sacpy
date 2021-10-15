@@ -46,7 +46,7 @@ class sac(object):
     A simple sac class
     '''
     
-    def __init__(self,filename=None):
+    def __init__(self,filename=None,datflag=True):
         '''
         Constructor
         Args:
@@ -139,7 +139,7 @@ class sac(object):
         # Read sac file if filename is specified
         if filename is not None:
             assert os.path.exists(filename), filename+' not found'
-            self.read(filename)
+            self.read(filename,datflag)
 
         # Spectrum flag
         self.spec = False
