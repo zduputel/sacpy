@@ -11,20 +11,14 @@ import scipy.signal as signal
 from copy     import deepcopy
 from datetime import datetime, timedelta
 
-
 NVHDR = 6
 ITIME = 1
 
-
-def unpack_c(chararray,rm_spaces=True):
+def unpack_c(chararray,strip=True):
     S = ''
-    for c in chararray:
-        c = c.decode('utf-8')
-        if rm_spaces and (c == ' ' or c == ''):
-            break
-        S+=c
+    for c in chararray: S+= c.decode('utf-8')
+    if strip: S = S.strip()
     return S
-
 
 def pack_c(char,size):
     S = deepcopy(char)
@@ -604,7 +598,7 @@ class Sac(object):
         # Sinc interpolation
         depvar_new = np.zeros((npts_new,),dtype='float32')
         for i in range(npts_new):
-            depvar_new[i] = np.dot(self.depvar,np.sinc((time_new[i]-time_old)/self.delta))        
+            depvar_new[i] = np.dot(self.depvar,np.sinc((time_new[i]-time_old)/self.delta))
         self.depvar = depvar_new.copy()
         self.npts   = npts_new
         self.delta  = delta_new
@@ -620,7 +614,7 @@ class Sac(object):
         '''
         Decimates data
         Args:
-            * dec_fac: decimation factor 
+            * dec_fac: decimation factor
         '''
 
         #import decimate as decim
@@ -686,7 +680,6 @@ class Sac(object):
         if tmin < self.b (beginning), adding zeros at the beginning
         if tmax > self.e (end), adding zeros at the end
         '''
-
         # Get trace beginning and end
         self.e = self.b + float(self.npts - 1) * self.delta
         tb = self.b
@@ -712,8 +705,6 @@ class Sac(object):
 
         # All done
         return
-
-    
 
 
     def cut(self,beg,end):
@@ -807,18 +798,19 @@ class Sac(object):
         Args:
             * PZ: dictionary including 'poles', 'zeros' and 'Const'        
         '''
-
-        # Zero padding
         npts = self.npts
+        # Trivial dtrend
+        self.depvar -= self.depvar[0]+np.arange(npts)*(self.depvar[-1]-self.depvar[0])/(npts-1)
+        # Zero padding
         self.pad(tmax=self.b+2.*self.npts*self.delta)
-
         # Evaluate the instrument response from Poles and Zeros
         resp = self.evalresp(PZ)
-
         # Convolve with the instrument response
         self.depvar = np.fft.irfft(resp*np.fft.rfft(self.depvar))[:npts]
         self.npts = npts
-
+        self.e    = self.b + float(self.npts)*self.delta
+        self.depmin = self.depvar.min()
+        self.depmax = self.depvar.max()        
         # Reset depmin/depmax
         self.resetdepmindepmax()
 
@@ -965,7 +957,6 @@ class Sac(object):
         else: # Frequency vector
             x = self.freq()
             xlabel = 'Freq., Hz'  
-
         # What do we want to plot?
         ylabel = 'Amplitude'        
         if ptype is None and not self.spec: # Standard seismogram plot
