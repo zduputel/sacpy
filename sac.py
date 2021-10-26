@@ -997,7 +997,7 @@ class Sac(object):
         '''
         Addition operation.         
         other can be:
-          - sacpy.sac object
+          - sacpy.Sac object
           - list or ndarray
           - real number (float or int)
         '''        
@@ -1044,7 +1044,7 @@ class Sac(object):
         '''
         Substraction operation.         
         other can be:
-          - sacpy.sac object
+          - sacpy.Qac object
           - list or ndarray
           - real number (float or int)
         '''        
@@ -1090,7 +1090,7 @@ class Sac(object):
         '''
         Multiplication operation.         
         other can be:
-          - sacpy.sac object
+          - sacpy.Sac object
           - list or ndarray
           - real number (float or int)
         '''        
@@ -1137,7 +1137,7 @@ class Sac(object):
         '''
         Multiplication operation.         
         other can be:
-          - sacpy.sac object
+          - sacpy.Sac object
           - list or ndarray
           - real number (float or int)
         ''' 
