@@ -447,7 +447,7 @@ class Sac(object):
         # Get nzdatetime
         nztime = self.getnzdatetime()
         # Define dt_o
-        dt_o = timedelta(seconds=int(time_param))
+        dt_o = timedelta(milliseconds=int(1.e3*time_param))
         # Get otime
         otime = nztime + dt_o
         # All done 
