@@ -645,7 +645,7 @@ class Sac(object):
         # Reset depmin/depmax
         self.resetdepmindepmax()
 
-    def filter(self, freq, order=4, btype='lowpass'):
+    def filter(self, freq, order=4, btype='lowpass',passes=1):
         '''
         Bandpass filter the data using a butterworth filter
         Args:
@@ -653,6 +653,7 @@ class Sac(object):
             * order:  Order of the filter.
             * btype: {'lowpass', 'highpass', 'bandpass', 'bandstop'}, optional
               (default is 'lowpass')
+            * passes: Set the number of passes (1: causal, default, 2: zero-phase
         '''
         
         # Check that headers are correct
@@ -663,9 +664,16 @@ class Sac(object):
             freq = np.array(freq)
         Wn = freq * 2. * self.delta # Normalizing frequencies
         sos = signal.butter(order, Wn, btype, output='sos')
+
+        # Check the number of passes
+        assert passes==1 or passes==2, "Number of passes should be 1 (causal) or 2 (zero-phase)"
         
         # Filter waveform
-        depvar = signal.sosfilt(sos, self.depvar)
+        if passes==1:
+            depvar = signal.sosfilt(sos, self.depvar)
+        else:
+            depvar = signal.sosfiltfilt(sos, self.depvar)
+
         self.depvar = depvar.astype('float32')
 
         # Reset depmin/depmax
